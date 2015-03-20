@@ -1,0 +1,14 @@
+*{margin:0;padding:0;position:relative;color:#CCCCCC;font:14px arial,helvetica,sans-serif;}
+html{height:100%;width:100%;}
+body{height:100%;width:100%;background-color:#EDEBDE;}
+p{padding:3px 3px 5px 3px;text-align:left;font-weight:bold;}
+#MainList{display:block;}
+#binaryTree2D{position:absolute;width:100%;height:100%;z-index:-100;}
+.BTD{width:auto;display:block;height:17px;}
+.QueueContainer_0{position:absolute;top:30px;background-color:#2D2D2D;padding:9px;display:block;width:auto;height:125px;border-top-right-radius:18px;border-bottom-right-radius:18px;border:2px solid white;}
+.QueueContainer{position:absolute;top:195px;background-color:#2D2D2D;padding:9px;display:block;width:112px;height:50px;border-top-right-radius:18px;border-bottom-right-radius:18px;border:2px solid green;}
+.QueueContainer_1{position:absolute;top:285px;background-color:#2D2D2D;padding:9px;display:block;width:112px;height:50px;border-top-right-radius:18px;border-bottom-right-radius:18px;border:2px solid blue;}
+.QueueContainer_2{position:absolute;top:375px;background-color:#2D2D2D;padding:9px;display:block;width:112px;height:50px;border-top-right-radius:18px;border-bottom-right-radius:18px;border:2px solid red;}
+.QueueContainer_3{position:absolute;top:465px;background-color:#2D2D2D;padding:9px;display:block;width:112px;height:50px;border-top-right-radius:18px;border-bottom-right-radius:18px;border:2px solid #CCCCCC;}
+button,input{color:#2D2D2D;width:50px;}
+

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>BinaryTree</TITLE>
+		<LINK HREF="css/style.css" REL="stylesheet" MEDIA="all" />
+		<SCRIPT TYPE="text/javascript" src="js/jquery-1.7.2.min.js"></SCRIPT>
+		<SCRIPT TYPE="text/javascript">
+			function BinarySearchTree(){this._root = null;} //создаем пустое дерево (объект дерева)
+			BinarySearchTree.prototype={                    //описываем методы класса BinarySearchTree
+			    add: function (value){				//метод ƒобавлени€ Ћиста (Node)
+					var node = {				//объект лист
+						value: value,		//значение
+						left:  null,		//ссылка на левого потомка
+						right: null,		//ссылка на правого потомка
+						level: 0,			//уровень в дереве
+						preline: null,		//пизнак предка ( левый от предка / правый от предка )
+						posx: null,			//позици€ x
+						posy: null,			//позици€ y
+						rchild: null,		//значение правого потомока
+						lchild: null		//значение левого потомока
+					},
+                    current,prenode;		//переменные
+					if (this._root === null){		//добавл€ем значение в корень если дерево пустое 
+						this._root = node;			
+					}else{							//дерево не пустое 
+						current = this._root;
+						while(true){				//рекурсивное добавление нового потомка 
+							if (value < current.value){			//если значение нового потомка меньше то присваиваем как левого потомка
+								if (current.left === null){		//если у текущего листа нет левого потомка
+									current.left = node;			//присваиваем как левого потомка
+									current.left.preline = 0;		//присваиваем признак предка
+									current.lchild = value;			
+									prenode = current;
+									current.left.level = prenode.level + 1;
+									break;
+								}else{
+									prenode = current;
+									current = current.left;
+									current.level = prenode.level + 1;
+								}
+							}else if (value > current.value){	//если значение нового потомка больше то добавл€ем как правого потомка
+								if (current.right === null){	//если у текущего листа нет правого потомка
+									current.right = node;			//добавл€ем как правого потомка втекущий лист
+									current.right.preline = 1;		//добавл€ем признак предка
+									current.rchild = value;
+									prenode = current;
+									current.right.level = prenode.level + 1;
+									break;
+								}else{
+									prenode = current;
+									current = current.right;
+									current.level = prenode.level + 1;
+								}
+							}else{
+								break;
+							}
+						}
+					}
+				},
+				contains: function(value){
+					var found = false,
+					current = this._root
+					while(!found && current){
+						if (value < current.value){
+							current = current.left;
+                        }else if (value > current.value){
+						    current = current.right;
+						}else{
+							found = true;
+						}
+					}
+                return found;
+				},
+				remove: function(value){
+					var found = false,
+					parent = null,
+					current = this._root,
+					childCount,
+					replacement,
+					replacementParent;
+					while(!found && current){
+						if (value < current.value){
+							parent = current;
+							current = current.left;
+						}else if (value > current.value){
+							parent = current;
+							current = current.right;
+						}else{
+							found = true;
+						}
+					}
+					if (found){
+						childCount = (current.left !== null ? 1 : 0) + (current.right !== null ? 1 : 0);
+						if (current === this._root){
+							switch(childCount){
+								case 0:
+									this._root = null;
+								break;
+								case 1:
+									this._root = (current.right === null ? current.left : current.right);
+								break;
+                                case 2:
+									replacement = this._root.left;
+									if (replacement.right){
+										while ( replacement.right !== null ){
+											replacementParent = replacement;
+											replacement = replacement.right;
+										};
+									};
+									if (replacementParent){
+										replacementParent.right = replacement.left;
+										replacement.right = this._root.right;
+										replacement.left = this._root.left;
+									} else {
+										replacement.right = this._root.right;
+									};
+									this._root = replacement;
+							}
+						} else {
+							switch (childCount){
+								case 0:
+									if (current.value < parent.value){
+										parent.left = null;
+									}else{
+										parent.right = null;
+									};
+								break;
+								case 1:
+                                    if (current.value < parent.value){
+										parent.left = (current.left === null ? current.right : current.left);
+									} else {
+										parent.right = (current.left === null ? current.right : current.left);
+									};
+								break;
+								case 2:
+								    replacement = current.left;
+									replacementParent = current;
+									
+									if (replacement.right){
+										while(replacement.right !== null){
+											replacementParent = replacement;
+											replacement = replacement.right;
+										};
+									} else {replacementParent = null; replacement = current.left;};
+									if (replacementParent){
+										replacementParent.right = replacement.left;
+										replacement.right = current.right;
+										replacement.left = current.left;
+									} else {
+										replacement.right = current.right;
+									};
+									if (current.value < parent.value){
+										parent.left = replacement;
+									} else {
+										parent.right = replacement;
+									};
+                            }
+        				}
+        			}
+        		},
+				size:function(){
+					var length = 0;
+					this.traverse(function(node){
+						length++;
+					});
+					return length;
+				},
+				 toArray:function(){
+					var result = [];
+					this.traverse(function(node){
+						result.push(node.value);
+					});
+					return result;
+				},
+				toString:function(){
+					return this.toArray().toString();
+				},
+				traverse: function(process){
+					function inOrder(node){
+						if (node){
+							if (node.left !== null){
+								inOrder(node.left);
+							}
+							process.call(this, node);
+							if (node.right !== null){
+								inOrder(node.right);
+							}
+						}
+					}
+					inOrder(this._root);
+				},
+				indepth:function(){
+					var list = new Array(),
+					queue = new Array(),
+					save_queue = new Object,
+					save_list = new Object;
+					queue.push(this._root);
+					list.push(this._root);
+					while(queue.length>0){
+						save_queue = queue.shift();
+						save_list = save_queue;
+						if( save_queue.left !== null){
+							queue.push(save_queue.left);
+							list.push(save_list.left);
+						};
+						if( save_queue.right !== null){
+							queue.push(save_queue.right);
+							list.push(save_list.right);
+						};
+						
+					};
+					return list;
+				},
+				stat_string:function(){
+				
+					var l = this._root.value + ':' + this._root.level,
+					queue = new Array(),
+					x = new Object;
+					queue.push(this._root);
+					while(queue.length>0){
+						x = queue.shift();
+						if( x.left !== null){
+							queue.push(x.left);
+							l = l + ' , ' + x.left.value + ':' + x.left.level + ':' + x.left.preline;
+						};
+						if( x.right !== null){
+							queue.push(x.right);
+							l = l + ' , ' + x.right.value + ':' + x.right.level + ':' + x.right.preline;
+						};
+						
+					};
+					return l;
+				},
+				find_node:function(value){
+					var found = false,
+					current = this._root;
+					while(!found && current){
+						if (value < current.value){
+							current = current.left;
+						};
+						if (value > current.value){
+							current = current.right;
+						}else{
+							found = true;
+						}
+					}
+					return found;
+				}
+				
+			};
+			
+			BinaryTree = new BinarySearchTree();
+			
+			jQuery.noConflict();
+			
+			jQuery(document).ready(function(){
+			
+				var BT = new Array();
+				
+				jQuery('#BTbutAdd').click(function(){
+					if(jQuery('#BTAdd').val()!==''){
+						BT.push(jQuery('#BTAdd').val());
+						jQuery('#BTAdd').val('');
+						jQuery('#BTAdd').focus();
+						jQuery('#BT').text(BT);
+					};
+				});
+				jQuery(".BT").keydown(function(event){
+					if ( event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 27 || (event.keyCode == 65 && event.ctrlKey === true) || (event.keyCode >= 35 && event.keyCode <= 39)){
+						return;
+					}else if(event.keyCode == 13){
+						if(jQuery('#BTAdd').val()!==''){
+							BT.push(jQuery('#BTAdd').val());
+							jQuery('#BTAdd').val('');
+							jQuery('#BTAdd').focus();
+							jQuery('#BT').text(BT);
+						};
+					}else{
+						if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )){
+							event.preventDefault();
+						}
+					}
+				});
+				jQuery('#BTbutBild').click(function(){
+					BT.sort(function(a,b){return a - b})
+					jQuery('#BT').text(BT);
+					BinaryTree._root = null;
+					var mid = BT.length/2
+						mid = mid.toFixed(0)-1;
+						BinaryTree.add(BT[mid]);
+						BT.splice(mid,1);
+					while(BT.length>1){
+						if(BT.length!=2){
+							var left = BT.length/2/2;
+							left = left.toFixed(0)-1;
+							BinaryTree.add(BT[left]);
+							BT.splice(left,1);
+							var right = BT.length/2/2*3;
+							right = right.toFixed(0)-1;
+							if(right != left){
+								BinaryTree.add(BT[right]);
+								BT.splice(right,1);
+							}
+						}else{
+							while(BT.length>0){
+								
+								var tol = 0;
+								BinaryTree.add(BT[tol]);
+								BT.splice(tol,1);
+							};
+						}
+					};
+					BinaryTree.add(BT[0]);
+					BT.splice(tol,1);
+					drawTree();
+				});
+				jQuery('#BTbutClean').click(function(){
+					BT = [];
+					jQuery('#BT').text(BT);
+					BinaryTree._root = null;
+					drawTree();
+				});
+				jQuery(".numerical").keydown(function(event){
+					if ( event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 27 || (event.keyCode == 65 && event.ctrlKey === true) || (event.keyCode >= 35 && event.keyCode <= 39)){
+						return;
+					}else if(event.keyCode == 13){
+						nodeEnter();
+						drawTree();
+					}else{
+						if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )){
+							event.preventDefault();
+						}
+					}
+				});
+				
+				function nodeSearch(){
+					var findItem = 0;
+					findItem = jQuery('#SearchItem').val();
+					if(findItem!==''){
+						if(BinaryTree.find_node(findItem)){
+							alert('Node:' + findItem + ' Was found');
+						}else{
+							alert('Node:' + findItem + ' Was Not found');
+						};
+						jQuery('#SearchItem').val('');
+						jQuery('#SearchItem').focus();
+						
+					};
+				};		
+				
+				jQuery('#FindItem').click(function(){ nodeSearch();});
+				
+				function nodeDelete(){
+					var delItem = 0;
+					delItem = jQuery('#DelItem').val();
+					if(delItem!==''){
+						restoreTree();
+						BinaryTree.remove(delItem);
+						restoreTree();
+						jQuery('#DelItem').val('');
+						jQuery('#DelItem').focus();
+						
+					};
+				};	
+				
+				jQuery('#RemItem').click(function(){ nodeDelete(); drawTree();});
+				
+				function nodeEnter(){
+					var newItem = 0;
+					newItem = jQuery('#NewItem').val();
+					if(newItem!==''){
+						BinaryTree.add(parseFloat(newItem));
+						restoreTree();
+						jQuery('#NewItem').val('');
+						jQuery('#NewItem').focus();
+						if(BinaryTree.stat_string()=='4:0 , 8:1:1 , 15:2:1 , 16:3:1 , 23:4:1 , 42:5:1'){
+							alert('4 + 8 + 15 + 16 + 23 + 42 = 108');
+						};
+					};
+				};
+				
+				jQuery('#AddItem').click(function(){ nodeEnter(); drawTree();});
+				
+				function drawTree(){
+				canvas = document.getElementById("binaryTree2D");
+					init();
+				};
+				
+				function init(){
+					if( BinaryTree._root == null ){
+						var context = canvas.getContext("2d");
+						context.canvas.width  = window.innerWidth;
+						context.canvas.height = window.innerHeight;
+						var radius = 18,step = 9;
+						centerX = canvas.width / 2;
+						centerY = step;
+						context.beginPath();
+						context.arc(centerX,centerY,radius,0,Math.PI*2,true);
+						context.lineWidth = 1;
+						context.strokeStyle = '#2D2D2D';
+						context.fillStyle = '#2D2D2D';
+						context.fill();
+						context.stroke();
+						context.beginPath();
+						context.fillStyle = '#FFF';
+						context.font = 'bold 18px sans-serif';
+						context.textBaseline = 'middle';
+						context.textAlign = 'center';
+						context.fillText ('0', centerX, centerY);
+						context.stroke();
+					} else {
+						var	levels = new Array(),
+						sublevels = [],
+						levelsave = new Object,ls = new Object,
+						le = true, s = '',
+						k,l,j,tx;
+						var context = canvas.getContext("2d");
+						context.canvas.width  = window.innerWidth;
+						context.canvas.height = window.innerHeight;
+						var radius = 18,step = 108;
+						centerX = canvas.width / 2;
+						centerY = step;
+						
+						
+						levels = BinaryTree.indepth();
+						while( levels.length > 0 ){
+							levelsave = levels.shift();
+							k=1;
+							le=true;
+							while( le ){
+								if( levels.length > 0 ){
+									if (levelsave.level == levels[0].level){
+										k++;
+										ls = levels.shift();
+									} else {
+										le=false;
+									};
+								} else {
+									le=false;
+								};
+							};
+							sublevels.push(k);
+						};
+						
+						restoreTree();
+						levels = BinaryTree.indepth();
+						
+						for(j=0;j<sublevels.length;j++){
+							k=0;
+							for(i=0;i<levels.length;i++){
+								if( levels[i].level === j ){
+									if( sublevels[j] === 1 ){
+										levels[i].posx = centerX;
+										if( levels[i].level == 0){
+											levels[i].posy = step/4;
+											k++;
+										} else {
+											levels[i].posy = j*step;
+											k++;
+										};
+									} else if( sublevels[j]%2 === 0 ){
+										tx = centerX - (sublevels[j]/2*step) + step/2;
+										levels[i].posx = tx + k*step;
+										levels[i].posy = j*step;
+										k++;
+			
+									} else if( sublevels[j]%2 !== 0 ){
+										tx = centerX - ( sublevels[j]/2*step ) + step/2;
+										levels[i].posx = tx + k*step;
+										levels[i].posy = j*step;
+										k++;
+									};
+								};
+							};
+						};
+						
+						for(i=0,l=levels.length;i<l;i++){
+							for(j=0;j<levels.length;j++){
+								if ( levels[i].value === levels[j].rchild ){
+									context.beginPath();
+									context.moveTo(levels[i].posx,levels[i].posy);
+									context.lineTo(levels[j].posx,levels[j].posy);
+									context.strokeStyle = '#0081FB';
+									context.lineWidth = 3;
+									context.stroke();
+								};
+							};
+							for(j=0;j<levels.length;j++){
+								if ( levels[i].value === levels[j].lchild ){
+									context.beginPath();
+									context.moveTo(levels[i].posx,levels[i].posy);
+									context.lineTo(levels[j].posx,levels[j].posy);
+									context.strokeStyle = '#F48206';
+									context.lineWidth = 3;
+									context.stroke();
+								};
+							};
+						};
+						
+						for(i=0,l=levels.length;i<l;i++){
+							context.beginPath();
+							context.arc(levels[i].posx,levels[i].posy,radius,0,Math.PI*2,true);
+							context.lineWidth = 1;
+							context.strokeStyle = '#2D2D2D';
+							context.fillStyle = '#FDFCF8';
+							context.fill();
+							context.stroke();
+							context.beginPath();
+							context.fillStyle = '#3A3A3A';
+							context.font = 'bold 18px sans-serif';
+							context.textBaseline = 'middle';
+							context.textAlign = 'center';
+							context.fillText (levels[i].value,levels[i].posx,levels[i].posy);
+							context.stroke();
+						};
+					};
+				};
+				function restoreTree(){
+					var	levels = new Array(),
+					i,l;
+					if( BinaryTree._root !== null ){
+						 levels = null;
+						 levels = BinaryTree.indepth();
+						 BinaryTree._root = null;
+						 for(i=0,l=levels.length;i<l;i++){
+							BinaryTree.add(parseFloat(levels[i].value));
+						 };
+					};
+				};
+			});
+		</SCRIPT>
+	</HEAD>
+	<BODY>
+		<DIV class="QueueContainer_0">
+			<p>Balanced Tree</p>
+			<INPUT  ID="BTAdd" CLASS="BT" TYPE="text"/>
+			<BUTTON ID="BTbutAdd">Add</BUTTON>
+			<p>Values:</p>
+			<p ID="BT" CLASS="BTD"></p>
+			<BUTTON ID="BTbutBild">Bild</BUTTON>
+			<BUTTON ID="BTbutClean">Clean</BUTTON>
+		</DIV>
+		<DIV class="QueueContainer">
+			<p>Add New Node</p>
+			<INPUT  ID="NewItem" CLASS="numerical" TYPE="text"/>
+			<BUTTON ID="AddItem">Add</BUTTON>
+		</DIV>
+		<DIV class="QueueContainer_2">
+			<p>Delete Node</p>
+			<INPUT  ID="DelItem" CLASS="numerical" TYPE="text"/>
+			<BUTTON ID="RemItem">Del</BUTTON>
+		</DIV>
+		<DIV class="QueueContainer_1">
+			<p>Find Node</p>
+			<INPUT  ID="SearchItem" CLASS="numerical" TYPE="text"/>
+			<BUTTON ID="FindItem">Find</BUTTON>
+		</DIV>
+		<DIV class="QueueContainer_3">
+			<p style="color:#F48206">Left Child &lt;</p>
+			<p style="color:#0081FB;">Right Child &gt;</p>
+		</DIV>
+		<canvas id="binaryTree2D">
+			<p>Your browser doesn't support canvas.</p>
+		</canvas>
+	</BODY>
+</HTML>
